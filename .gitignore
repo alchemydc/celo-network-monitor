@@ -1,0 +1,8 @@
+node_modules
+ts-build
+yarn-error.log
+build
+.DS_Store
+# Env files
+!.env-template
+.env*

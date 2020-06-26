@@ -1,0 +1,40 @@
+{
+  "name": "celo-network-monitor",
+  "version": "0.0.1",
+  "private": true,
+  "scripts": {
+    "build": "tsc -p .",
+    "postbuild": "copyfiles *.yaml build/",
+    "start": "node ./src/main.js",
+    "dev": "NODE_ENV=development ts-node-dev -r dotenv/config ./src/main.ts",
+    "lint": "eslint . --ext .js,.jsx,.ts,.tsx",
+    "test": "ts-mocha -p tsconfig.json src/**/*.test.ts --exit"
+  },
+  "dependencies": {
+    "@celo/celocli": "0.0.47",
+    "@celo/contractkit": "0.4.2",
+    "@slack/webhook": "5.0.3",
+    "bignumber.js": "9.0.0",
+    "dotenv": "8.2.0",
+    "js-yaml": "3.13.1",
+    "moment": "2.25.3",
+    "moment-timezone": "0.5.28",
+    "node-pagerduty": "1.2.0",
+    "web3": "1.2.4"
+  },
+  "devDependencies": {
+    "@types/mocha": "7.0.2",
+    "@types/moment-timezone": "0.5.13",
+    "@types/node": "13.13.4",
+    "copyfiles": "2.2.0",
+    "dotenv": "8.2.0",
+    "mocha": "7.1.1",
+    "ts-mocha": "7.0.0",
+    "ts-node-dev": "1.0.0-pre.44",
+    "ts-sinon": "1.2.0",
+    "typescript": "3.8.3"
+  },
+  "_moduleAliases": {
+    "~": "src"
+  }
+}

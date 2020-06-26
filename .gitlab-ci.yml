@@ -1,0 +1,12 @@
+image: node:10.19
+
+stages:
+  - test
+
+test:
+  stage: test
+  before_script:
+    - apt-get update && apt-get install -y libudev-dev libusb-1.0-0-dev
+    - yarn
+  script:
+    - yarn test
