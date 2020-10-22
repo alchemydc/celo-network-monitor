@@ -34,6 +34,7 @@ export default class CeloMonitor {
             process.env.SLACK_CHANNEL || "",
             process.env.PD_KEY || "",
             process.env.PD_SERVICE || "",
+            process.env.PD_EMAIL || "",
             debug
         );
         this.#addresses = new Addresses(addressFile)
