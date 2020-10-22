@@ -26,6 +26,7 @@ ENV_FILE=.env-template yarn dev
 
 Monitors can be enabled or disabled by commenting out desired monitors in `src/monitor/monitor.ts`. Default monitors include:
 
+* **Attestation Service** - Monitor a validator's Attestation service
 * **Balance** - Monitor the CELO and cUSD balances of all addresses specified in the addresses yaml file
 * **Electability Threshold** - Monitor the threshold of votes needed to get elected
 * **Governance** - Monitor the network for governance activity

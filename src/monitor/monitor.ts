@@ -16,6 +16,7 @@ import MonitorBase, { MonitorArgs } from "./monitorBase";
 import MonitorNetworkParticipation from "./monitorNetworkParticipation";
 import MonitorKeyRotation from "./monitorKeyRotation";
 import { nodeIsSynced } from "@celo/celocli/lib/utils/helpers";
+import MonitorAttestationService from "./monitorAttestationService";
 
 export default class CeloMonitor {
     #provider: KitProvider
@@ -25,7 +26,7 @@ export default class CeloMonitor {
     #debug: boolean
     #lastBlockProcessed: number = -1
 
-    constructor(provider: KitProvider, addressFile:string, blocksToScan: number, debug: boolean) {
+    constructor(provider: KitProvider, addressFile: string, blocksToScan: number, debug: boolean) {
         this.#provider = provider;
         this.#blocksToScan = blocksToScan
         this.#alert = new Alert(
@@ -59,6 +60,7 @@ export default class CeloMonitor {
         await new MonitorNode(args).monitor()
         // Collect all monitors
         let monitors = [
+            new MonitorAttestationService(args),
             new MonitorBalance(args),
             new MonitorElectabilityThreshold(args),
             new MonitorGovernance(args),
@@ -82,21 +84,21 @@ export default class CeloMonitor {
         }
 
         // Record Processing
-        this.#lastBlockProcessed = args.blocks[args.blocks.length-1].number
+        this.#lastBlockProcessed = args.blocks[args.blocks.length - 1].number
 
         // Print runtime
-        const duration = Math.floor(new Date().getTime() - start)/1000;
+        const duration = Math.floor(new Date().getTime() - start) / 1000;
         console.log(`CeloMonitor() - Finished in ${duration}s`);
     }
 
     async runParallel(monitors: MonitorBase[]) {
         const promises = Array<Promise<void>>()
-        for(const m of monitors) { promises.push(m.monitor()) }
+        for (const m of monitors) { promises.push(m.monitor()) }
         await Promise.all(promises)
     }
 
     async runSerial(monitors: MonitorBase[]) {
-        for(const m of monitors) { await m.monitor() }
+        for (const m of monitors) { await m.monitor() }
     }
 
     /** Get the most recent #blocksToScan blocks */
