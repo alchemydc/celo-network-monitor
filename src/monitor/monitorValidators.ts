@@ -3,7 +3,7 @@ import { ElectionResultsCache } from "@celo/celocli/lib/utils/election";
 import { slackAddressDetails, addressExplorerUrl } from "./alert";
 import BigNumber from "bignumber.js";
 import MonitorBase from "./monitorBase";
-import { BlockTransactionString } from 'web3-eth/types/index'
+import { Block } from 'web3-eth/types/index'
 
 const scoreCache = new Map<string, BigNumber>()
 
@@ -13,11 +13,11 @@ export type BlockSignatureCount = {
     totalBlocks: number
 }
 
-/** Monitor the health of our validators */
 export default class MonitorValidators extends MonitorBase {
 
     protected async run() {
         const validators = await this.kit.contracts.getValidators()
+        // const accounts = await kit.contracts.getAccounts()
         const election = await this.kit.contracts.getElection()
 
         // Get currently elected validators
@@ -26,6 +26,7 @@ export default class MonitorValidators extends MonitorBase {
 
         // Get validators that _will_ be elected
         const validatorSigners = await this.getValidatorSigners()
+        const validatorSetSize = await election.numberValidatorsInSet(this.blocks[this.blocks.length - 1].number)
         const frontRunnerSigners = await election.electValidatorSigners()
 
        // Monitor signatures of each of our validators
@@ -44,25 +45,26 @@ export default class MonitorValidators extends MonitorBase {
 
             const signatures = await this.checkBlockSignatures(electionCache, validator, signer, this.blocks)
             this.alertOnMissedSignatures(validator, signatures)
-            this.alertOnMissedBlocks(validator, signatures, signer, this.blocks)
+            this.alertOnMissedBlocks(validator, validatorSetSize, signatures, signer, this.blocks)
         }
     }
 
     /** Slack if we've missed one block, Page if we've missed all of them */
     async alertOnMissedBlocks(
       validator: string,
+      validatorSetSize: number,
       signatures: BlockSignatureCount,
       signer: string,
-      blocks: BlockTransactionString[]) {
+      blocks: Block[]) {
         // Alert if we're not proposing blocks
         const proposedBlockCount = blocks.filter((b) => b.miner===signer).length
-        const expectedBlockCount = Math.floor(signatures.eligibleBlocks/100)
+        const expectedBlockCount = Math.floor(signatures.eligibleBlocks / validatorSetSize)
         const missedBlockCount = Math.max(expectedBlockCount-proposedBlockCount, 0)
 
         // Slack if we've missed one block
         if (missedBlockCount>0) {
             // Ignore single block misses near epoch transitions
-            if (!this.doBlocksIncludeEpochTransition()) {
+            if (!this.doBlocksIncludeEpochTransision()) {
                 await this.alert.slackWarn(
                     `\`${this.addresses.alias(validator)}\` missed mining \`${missedBlockCount}/${expectedBlockCount}\` blocks. Are we healthy? ${slackAddressDetails(validator)}`,
                     60*10,
@@ -75,8 +77,6 @@ export default class MonitorValidators extends MonitorBase {
             await this.alert.page(
                 `Celo Validator Not Proposing Blocks`,
                 `${this.addresses.alias(validator)} missed mining ${missedBlockCount}/${expectedBlockCount} blocks. Are we offline? See: ${addressExplorerUrl(validator)}`,
-                60*10,
-                `${this.addresses.alias(validator)} is missing blocks`,
             )
         }
         this.metrics.log("MissedBlocks", missedBlockCount, this.addresses.alias(validator))
@@ -103,14 +103,12 @@ export default class MonitorValidators extends MonitorBase {
             await this.alert.page(
                 `Celo Validator Missing Signatures`,
                 `${this.addresses.alias(validator)} has missed ${missedSignatures}/${signatures.eligibleBlocks} signatures. Is this validator offline?  See: https://explorer.celo.org/address/${validator}`,
-                60*10,
-                `${this.addresses.alias(validator)} is missing signatures`
             )
         }
     }
 
     /** Check block signatures for misses */
-    async checkBlockSignatures(electionCache: ElectionResultsCache, validator: string, signer: string, blocks: BlockTransactionString[]): Promise<BlockSignatureCount> {
+    async checkBlockSignatures(electionCache: ElectionResultsCache, validator: string, signer: string, blocks: Block[]): Promise<BlockSignatureCount> {
         const signatures: BlockSignatureCount = {
             signedBlocks: 0,
             eligibleBlocks: 0,
