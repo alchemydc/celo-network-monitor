@@ -1,146 +1,193 @@
-import { IncomingWebhook, IncomingWebhookSendArguments } from '@slack/webhook';
-import PagerDuty from 'node-pagerduty';
-
+import { Webhook } from "discord-webhook-node";
+import { event } from "@pagerduty/pdjs";
+import Web3 from "web3";
 export interface AlertInterface {
-    slack(text: string, throttleSeconds?: number, alertKey?: string): Promise<void>
-    slackWarn(text: string, throttleSeconds?: number, alertKey?: string): Promise<void>
-    slackError(text: string, throttleSeconds?: number, alertKey?: string): Promise<void>
-    page(title: string, details: string, throttleSeconds: number, alertKey?: string): Promise<void>
+	discord(
+		text: string,
+		throttleSeconds?: number,
+		alertKey?: string
+	): Promise<void>;
+	discordWarn(
+		text: string,
+		throttleSeconds?: number,
+		alertKey?: string
+	): Promise<void>;
+	discordError(
+		text: string,
+		throttleSeconds?: number,
+		alertKey?: string
+	): Promise<void>;
+	page(
+		title: string,
+		details: string,
+		throttleSeconds: number,
+		alertKey?: string
+	): Promise<void>;
 }
-
 export class AlertTest implements AlertInterface {
-    async slack(text: string, throttleSeconds: number, alertKey?: string): Promise<void> { }
-    async slackWarn(text: string, throttleSeconds: number, alertKey?: string): Promise<void> { }
-    async slackError(text: string, throttleSeconds: number, alertKey?: string): Promise<void> { }
-    async page(title: string, details: string, throttleSeconds: number, alertKey?: string): Promise<void> { }
+	async discord(
+		text: string,
+		throttleSeconds: number,
+		alertKey?: string
+	): Promise<void> {}
+	async discordWarn(
+		text: string,
+		throttleSeconds: number,
+		alertKey?: string
+	): Promise<void> {}
+	async discordError(
+		text: string,
+		throttleSeconds: number,
+		alertKey?: string
+	): Promise<void> {}
+	async page(
+		title: string,
+		details: string,
+		throttleSeconds: number,
+		alertKey?: string
+	): Promise<void> {}
 }
 
 export default class Alert implements AlertInterface {
-    #slackClient: IncomingWebhook;
-    #slackChannel: string;
-    #slackThrottle: Map<string, Date>;
+	#discordThrottle: Map<string, Date>;
+	#discordHook: Webhook;
+	#pdThrottle: Map<string, Date>;
+	#debug: boolean;
 
-    #pdClient: any;
-    #pdService: string;
-    #pdEmail: string;
-    #pdThrottle: Map<string, Date>;
+	constructor(debug: boolean) {
+		this.#discordThrottle = new Map();
+		this.#pdThrottle = new Map();
+		this.#debug = debug;
+		this.#discordHook = new Webhook(process.env.DISCORD_WEBHOOK_URL || "");
+		console.log("Alerting to " + process.env.DISCORD_WEBHOOK_URL);
+	}
 
-    #debug: boolean
+	/* Send a Discord message */
+	async discord(
+		text: string,
+		throttleSeconds: number = 60,
+		alertKey: string = Web3.utils.keccak256(text)
+	): Promise<void> {
+		if (this.#debug) {
+			console.log(`\nWOULD HAVE SLACKED WITH:\n- message: ${text}\n`);
+			return;
+		}
+		if (this.shouldAlert(this.#discordThrottle, alertKey, throttleSeconds)) {
+			console.log(`Discord Info Alerting: ${text}`);
+			this.#discordHook.setUsername("Celo Validator Monitor Service");
+			this.#discordHook.send(text);
+		}
+	}
 
-    constructor(slackUrl: string, slackChannel: string, pdKey: string, pdService: string, pdEmail: string, debug: boolean) {
-        this.#slackClient = new IncomingWebhook(slackUrl);
-        this.#slackChannel = slackChannel;
-        this.#slackThrottle = new Map();
+	async discordWarn(
+		text: string,
+		throttleSeconds = 60,
+		alertKey: string = Web3.utils.keccak256(text)
+	): Promise<void> {
+		if (this.shouldAlert(this.#discordThrottle, alertKey, throttleSeconds)) {
+			console.log(`Discord Warning Alerting: ${text}`);
+			await this.#discordHook.warning(
+				`**${process.env.PD_SOURCE_DESCRIPTOR}**`,
+				"Warning",
+				text
+			);
+		}
+	}
 
-        if (pdKey.length > 0) {
-            this.#pdClient = new PagerDuty(pdKey);
-        }
-        this.#pdService = pdService;
-        this.#pdEmail = pdEmail
-        this.#pdThrottle = new Map();
+	async discordError(
+		text: string,
+		throttleSeconds = 60,
+		alertKey: string = Web3.utils.keccak256(text)
+	): Promise<void> {
+		if (this.shouldAlert(this.#discordThrottle, alertKey, throttleSeconds)) {
+			console.log(`Discord Error Alerting: ${text}`);
+			await this.#discordHook.warning(
+				`**${process.env.PD_SOURCE_DESCRIPTOR}**`,
+				"Warning",
+				text
+			);
+		}
+	}
 
-        this.#debug = debug
-    }
+	async page(
+		title: string,
+		details: string,
+		throttleSeconds = 60,
+		alertKey?: string
+	): Promise<void> {
+		alertKey = Web3.utils.keccak256(alertKey || title + details);
 
-    /** Send a slack message */
-    async slackWarn(text: string, throttleSeconds = 60, alertKey?: string): Promise<void> {
-        await this.slack(":warning: " + text, throttleSeconds, alertKey)
-    }
-    async slackError(text: string, throttleSeconds = 60, alertKey?: string): Promise<void> {
-        await this.slack(":bangbang: " + text, throttleSeconds, alertKey)
-    }
-    async slack(text: string, throttleSeconds = 60, alertKey?: string): Promise<void> {
-        alertKey = alertKey || text;
+		if (this.#debug) {
+			console.log(
+				`\nWOULD HAVE PAGED WITH:\n- title:${title}\n- details:${details}\n`
+			);
+			return;
+		}
 
-        if (this.#debug) {
-            console.log(`\nWOULD HAVE SLACKED WITH:\n- message: ${text}\n`)
-            return
-        }
+		if (this.shouldAlert(this.#pdThrottle, alertKey, throttleSeconds)) {
+			console.log(`Paging: ${title}`);
 
-        if (this.shouldAlert(this.#slackThrottle, alertKey, throttleSeconds)) {
-            console.log(`Slack Alerting: ${text}`);
-            const data: IncomingWebhookSendArguments = {
-                channel: this.#slackChannel,
-                username: "Celo Network Monitor",
-                text: text
-            };
-            await this.#slackClient.send(data);
-        }
-    }
+			event({
+				data: {
+					routing_key: process.env.PD_EVENTS_ROUTING_KEY || "YOUR_ROUTING_KEY",
+					event_action: "trigger",
+					dedup_key: alertKey,
+					payload: {
+						summary: title,
+						source: process.env.PD_SOURCE_DESCRIPTOR || "monitor",
+						severity: "error",
+					},
+				},
+			})
+				.then(console.log)
+				.catch(console.error);
 
-    /** Page us */
-    async page(title: string, details: string, throttleSeconds = 60, alertKey?: string): Promise<void> {
-        alertKey = alertKey || title + details
+			this.discord(`Paging with title: \`${title}\``);
+		}
+	}
 
-        if (this.#debug) {
-            console.log(`\nWOULD HAVE PAGED WITH:\n- title:${title}\n- details:${details}\n`)
-            return
-        }
+	/** if we've already sent this exact alert in the past `x` seconds, then do not re-alert */
+	shouldAlert(
+		throttle: Map<string, Date>,
+		key: string,
+		throttleSeconds: number
+	): boolean {
+		if (!throttle.has(key)) {
+			throttle.set(key, new Date());
+			return true;
+		}
 
-        if (this.shouldAlert(this.#pdThrottle, alertKey, throttleSeconds)) {
-            console.log(`Paging: ${title}`)
-            const payload = {
-                incident: {
-                    title,
-                    type: 'incident',
-                    service: {
-                        id: this.#pdService,
-                        type: 'service_reference',
-                    },
-                    body: {
-                        type: 'incident_body',
-                        details,
-                    },
-                    incident_key: alertKey,
-                },
-            };
+		const now = new Date().getTime();
+		const lastAlertTime = throttle.get(key)?.getTime() || 0;
+		const secondsSinceAlerted = (now - lastAlertTime) / 1000;
 
-            if (this.#pdClient != undefined) {
-                await this.#pdClient.incidents.createIncident(this.#pdEmail, payload)
-            }
-            this.slackError(`Paging with title: \`${title}\``)
-        }
-    }
-
-    /** if we've already sent this exact alert in the past `x` seconds, then do not re-alert */
-    shouldAlert(throttle: Map<string, Date>, key: string, throttleSeconds: number): boolean {
-        if (!throttle.has(key)) {
-            throttle.set(key, new Date());
-            return true;
-        }
-
-        const now = new Date().getTime();
-        const lastAlertTime = throttle.get(key)?.getTime() || 0;
-        const secondsSinceAlerted = (now - lastAlertTime) / 1000;
-
-        if (secondsSinceAlerted > throttleSeconds) {
-            // We've passed our throttle delay period
-            throttle.set(key, new Date());
-            return true;
-        }
-        return false;
-    }
-
+		if (secondsSinceAlerted > throttleSeconds) {
+			// We've passed our throttle delay period
+			throttle.set(key, new Date());
+			return true;
+		}
+		return false;
+	}
 }
 
 /** Address Explorer Url */
 export function addressExplorerUrl(address: string): string {
-    return `https://explorer.celo.org/address/${address}`
+	return `https://explorer.celo.org/address/${address}`;
 }
-export function slackAddressDetails(address: string): string {
-    if (isValidAddress(address)) {
-        return `[<${addressExplorerUrl(address)}|Details>]`
-    }
-    return ""
+export function discordAddressDetails(address: string): string {
+	if (isValidAddress(address)) {
+		return `[<${addressExplorerUrl(address)}|Details>]`;
+	}
+	return "";
 }
 /** Block Explorer Url */
 export function blockExplorerUrl(blockNumber: number): string {
-    return `https://explorer.celo.org/blocks/${blockNumber}`
+	return `https://explorer.celo.org/blocks/${blockNumber}`;
 }
 export function slackBlockDetails(blockNumber: number): string {
-    return `[<${blockExplorerUrl(blockNumber)}|Details>]`
+	return `[<${blockExplorerUrl(blockNumber)}|Details>]`;
 }
 
 function isValidAddress(address: string): boolean {
-    return address.match(/^[a-zA-Z0-9]*$/) != null
+	return address.match(/^[a-zA-Z0-9]*$/) != null;
 }

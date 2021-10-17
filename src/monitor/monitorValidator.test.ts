@@ -1,116 +1,239 @@
-import assert from 'assert';
-import sinon from 'ts-sinon';
-import BigNumber from 'bignumber.js';
-import MonitorValidators, { BlockSignatureCount } from "./monitorValidators"
+import assert from "assert";
+import sinon from "ts-sinon";
+import BigNumber from "bignumber.js";
+import MonitorValidators, {BlockSignatureCount} from "./monitorValidators";
+import { BlockTransactionString } from "web3-eth/types/index";
 import { NewMonitorArgs } from "./monitorBase";
+import dotenv from "dotenv";
 
-describe('monitorValidators', function () {
+describe("monitorValidators", function () {
 
-    it('alertOnMissedSignatures', async function () {
-      const args = NewMonitorArgs()
-      const slack = sinon.spy(args.alert, 'slack');
-      const warn = sinon.spy(args.alert, 'slackWarn');
-      const error = sinon.spy(args.alert, 'slackError');
-      const page = sinon.spy(args.alert, 'page');
-      let signatures: BlockSignatureCount = { eligibleBlocks: 200, signedBlocks: 200, totalBlocks: 200 }
+	const envFile = process.env.ENV_FILE || ".env-mainnet";
+	console.log(dotenv.config({ path: envFile }));
 
-      const monitor = new MonitorValidators(args)
+	it("alertOnMissedBlocks", async function (){
 
-      // 100% Signed
-      signatures.signedBlocks = signatures.totalBlocks * 1
-      await monitor.alertOnMissedSignatures("", signatures)
-      assert(!slack.called);
-      assert(!warn.called);
-      assert(!error.called);
-      assert(!page.called);
-      slack.resetHistory()
-      warn.resetHistory()
-      error.resetHistory()
-      page.resetHistory()
+		const args = NewMonitorArgs();
+		const validator = "0xvalidator";
+		const signer = "0xsigner";
+		
+		const discord = sinon.spy(args.alert, "discord");
+		const warn = sinon.spy(args.alert, "discordWarn");
+		const error = sinon.spy(args.alert, "discordError");
+		const page = sinon.spy(args.alert, "page");
+		
+		let signatures: BlockSignatureCount = {
+			eligibleBlocks: 200,
+			signedBlocks: 1,
+			totalBlocks: 200,
+		};
 
-      // 95% Signed
-      signatures.signedBlocks = signatures.totalBlocks * .95
-      await monitor.alertOnMissedSignatures("", signatures)
-      assert(!slack.called);
-      assert(!warn.called);
-      assert(!error.called);
-      assert(!page.called);
-      slack.resetHistory()
-      warn.resetHistory()
-      error.resetHistory()
-      page.resetHistory()
+		const monitor = new MonitorValidators(args);
 
-      // 80% Signed
-      signatures.signedBlocks = signatures.totalBlocks * .8
-      await monitor.alertOnMissedSignatures("", signatures)
-      assert(!slack.calledOnce);
-      assert(warn.called);
-      assert(!error.called);
-      assert(!page.called);
-      slack.resetHistory()
-      warn.resetHistory()
-      error.resetHistory()
-      page.resetHistory()
+		let dummyBlock0 : BlockTransactionString = {
+			size: 0,
+			difficulty: 0,		
+			totalDifficulty: 0,
+			uncles: [""],
+			number: 0,
+			hash: "0x1",
+			parentHash: "0x0",
+			nonce: "1",
+			sha3Uncles: "",
+			logsBloom: "",
+			transactionRoot: "",
+			stateRoot: "",
+			receiptRoot: "",
+			miner: "",
+			extraData: "",
+			gasLimit: 1,
+			gasUsed: 1,
+			timestamp: "0",
+			transactions: [""]			
+		}
+		let dummyBlock1 : BlockTransactionString = {
+			size: 0,
+			difficulty: 0,		
+			totalDifficulty: 0,
+			uncles: [""],
+			number: 0,
+			hash: "0x1",
+			parentHash: "0x0",
+			nonce: "1",
+			sha3Uncles: "",
+			logsBloom: "",
+			transactionRoot: "",
+			stateRoot: "",
+			receiptRoot: "",
+			miner: "",
+			extraData: "",
+			gasLimit: 1,
+			gasUsed: 1,
+			timestamp: "0",
+			transactions: [""]			
+		}
+	
+		// 1 proposed
+		signatures.signedBlocks = 1;
+		dummyBlock0.miner = signer;
+		dummyBlock1.miner = "notsigner";
 
-      // 40% Signed
-      signatures.signedBlocks = signatures.totalBlocks * .4
-      await monitor.alertOnMissedSignatures("", signatures)
-      assert(!slack.calledOnce);
-      assert(warn.called);
-      assert(!error.called);
-      assert(page.calledOnce);
-      slack.resetHistory()
-      warn.resetHistory()
-      error.resetHistory()
-      page.resetHistory()
-  });
+		let blocks : BlockTransactionString[] = [dummyBlock0, dummyBlock1];
 
-  it('alertIfValidatorScoreDecreased', async function () {
-      const args = NewMonitorArgs()
-      const error = sinon.spy(args.alert, 'slackError');
-      const monitor = new MonitorValidators(args)
+		await monitor.alertOnMissedBlocks(validator, signatures, signer, blocks);
+		assert(!discord.called);
+		assert(!warn.called);
+		assert(!error.called);
+		assert(!page.called);
+		discord.resetHistory();
+		warn.resetHistory();
+		error.resetHistory();
+		page.resetHistory();
 
-      await monitor.alertIfValidatorScoreDecreased("", new BigNumber(2))
-      assert(!error.called);
-      error.resetHistory()
+		// 2 proposed
+		signatures.signedBlocks = 2;
+		dummyBlock0.miner = signer;
+		dummyBlock1.miner = signer;
 
-      await monitor.alertIfValidatorScoreDecreased("", new BigNumber(2))
-      assert(!error.called);
-      error.resetHistory()
+		blocks = [dummyBlock0, dummyBlock1];
 
-      await monitor.alertIfValidatorScoreDecreased("", new BigNumber(3))
-      assert(!error.called);
-      error.resetHistory()
+		await monitor.alertOnMissedBlocks(validator, signatures, signer, blocks);
+		assert(!discord.called);
+		assert(!warn.called);
+		assert(!error.called);
+		assert(!page.called);
+		discord.resetHistory();
+		warn.resetHistory();
+		error.resetHistory();
+		page.resetHistory();
 
-      await monitor.alertIfValidatorScoreDecreased("", new BigNumber(2.5))
-      assert(error.called);
-      error.resetHistory()
-  });
+		// 0 proposed
+		signatures.signedBlocks = 0;
+		dummyBlock0.miner = "lkjsdlk";
+		dummyBlock1.miner = "sdljlkjl";
 
-  it('alertOnElectionStatusChange', async function () {
-    const args = NewMonitorArgs()
-    const slack = sinon.spy(args.alert, 'slack');
-    const warn = sinon.spy(args.alert, 'slackWarn');
+		blocks = [dummyBlock0, dummyBlock1];
 
-    const monitor = new MonitorValidators(args)
+		await monitor.alertOnMissedBlocks(validator, signatures, signer, blocks);
+		assert(!discord.called);
+		assert(warn.called);
+		assert(!error.called);
+		assert(page.called);
+		discord.resetHistory();
+		warn.resetHistory();
+		error.resetHistory();
+		page.resetHistory();
+	})
+	
+	it("alertOnMissedSignatures", async function () {
+		
+		const args = NewMonitorArgs();
+		const discord = sinon.spy(args.alert, "discord");
+		const warn = sinon.spy(args.alert, "discordWarn");
+		const error = sinon.spy(args.alert, "discordError");
+		const page = sinon.spy(args.alert, "page");
+		let signatures: BlockSignatureCount = {
+			eligibleBlocks: 200,
+			signedBlocks: 200,
+			totalBlocks: 200,
+		};
 
-    await monitor.alertOnElectionStatusChange("", false, false)
-    assert(!slack.called);
-    assert(!warn.called);
-    slack.resetHistory()
-    warn.resetHistory()
+		const monitor = new MonitorValidators(args);
 
-    await monitor.alertOnElectionStatusChange("", false, true)
-    assert(slack.called);
-    assert(!warn.called);
-    slack.resetHistory()
-    warn.resetHistory()
+		// 100% Signed
+		signatures.signedBlocks = signatures.totalBlocks * 1;
+		await monitor.alertOnMissedSignatures("", signatures);
+		assert(!discord.called);
+		assert(!warn.called);
+		assert(!error.called);
+		assert(!page.called);
+		discord.resetHistory();
+		warn.resetHistory();
+		error.resetHistory();
+		page.resetHistory();
 
-    await monitor.alertOnElectionStatusChange("", true, false)
-    assert(!slack.called);
-    assert(warn.called);
-    slack.resetHistory()
-    warn.resetHistory()
-  });
+		// 95% Signed
+		signatures.signedBlocks = signatures.totalBlocks * 0.95;
+		await monitor.alertOnMissedSignatures("", signatures);
+		assert(!discord.called);
+		assert(!warn.called);
+		assert(!error.called);
+		assert(!page.called);
+		discord.resetHistory();
+		warn.resetHistory();
+		error.resetHistory();
+		page.resetHistory();
 
+		// 93% Signed
+		signatures.signedBlocks = signatures.totalBlocks * 0.93;
+		await monitor.alertOnMissedSignatures("", signatures);
+		assert(discord.called);
+		assert(!warn.called);
+		assert(!error.called);
+		assert(!page.called);
+		discord.resetHistory();
+		warn.resetHistory();
+		error.resetHistory();
+		page.resetHistory();
+
+		// 89% Signed
+		signatures.signedBlocks = signatures.totalBlocks * 0.89;
+		await monitor.alertOnMissedSignatures("", signatures);
+		assert(discord.calledOnce);
+		assert(!warn.calledOnce);
+		assert(!error.called);
+		assert(page.called);
+		discord.resetHistory();
+		warn.resetHistory();
+		error.resetHistory();
+		page.resetHistory();
+	});
+
+	it("alertIfValidatorScoreDecreased", async function () {
+		const args = NewMonitorArgs();
+		const error = sinon.spy(args.alert, "discordError");
+		const monitor = new MonitorValidators(args);
+
+		await monitor.alertIfValidatorScoreDecreased("", new BigNumber(2));
+		assert(!error.called);
+		error.resetHistory();
+
+		await monitor.alertIfValidatorScoreDecreased("", new BigNumber(2));
+		assert(!error.called);
+		error.resetHistory();
+
+		await monitor.alertIfValidatorScoreDecreased("", new BigNumber(3));
+		assert(!error.called);
+		error.resetHistory();
+
+		await monitor.alertIfValidatorScoreDecreased("", new BigNumber(2.5));
+		assert(error.called);
+		error.resetHistory();
+	});
+
+	it("alertOnElectionStatusChange", async function () {
+		const args = NewMonitorArgs();
+		const discord = sinon.spy(args.alert, "discord");
+		const warn = sinon.spy(args.alert, "discordWarn");
+
+		const monitor = new MonitorValidators(args);
+
+		await monitor.alertOnElectionStatusChange("", false, false);
+		assert(!discord.called);
+		assert(!warn.called);
+		discord.resetHistory();
+		warn.resetHistory();
+
+		await monitor.alertOnElectionStatusChange("", false, true);
+		assert(discord.called);
+		assert(!warn.called);
+		discord.resetHistory();
+		warn.resetHistory();
+
+		await monitor.alertOnElectionStatusChange("", true, false);
+		assert(!discord.called);
+		assert(warn.called);
+		discord.resetHistory();
+		warn.resetHistory();
+	});
 });

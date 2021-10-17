@@ -1,9 +1,9 @@
 export function logLevelDebug() {}
 
 export function logLevelInfo() {
-    console.debug = function() {}
+	console.debug = function () {};
 }
 export function logLevelWarn() {
-    console.debug = function() {}
-    console.log = function() {}
+	console.debug = function () {};
+	console.log = function () {};
 }
