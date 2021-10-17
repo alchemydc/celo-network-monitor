@@ -6,3 +6,5 @@ build
 # Env files
 !.env-template
 .env*
+addresses.mainnet.yaml
+addresses.baklava.yaml

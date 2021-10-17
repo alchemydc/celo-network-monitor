@@ -9,7 +9,6 @@
     "eslint": "npx eslint src/*.ts src/monitor/*.ts",
     "prettier": "prettier --write src/*.ts src/monitor/*.ts",
     "test": "ts-mocha -p tsconfig.json src/**/*.test.ts --exit",
-    "snyk-protect": "snyk protect",
     "prepare": "yarn run snyk-protect"
   },
   "_moduleAliases": {
@@ -42,7 +41,6 @@
     "eslint-plugin-promise": "5.1.0",
     "mocha": "8.4.0",
     "prettier": "2.3.1",
-    "snyk": "1.631.0",
     "ts-mocha": "8.0.0",
     "ts-node-dev": "1.1.6",
     "ts-sinon": "2.0.1",

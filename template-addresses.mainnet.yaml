@@ -1,0 +1,9 @@
+GroupAccounts:
+# Your top level group accounts
+- '0x0000000000000000000000000000000000000000'
+Addresses:
+  # List of all *stable* addresses that won't be rotated
+  # i.e. everything except your validator signer and attestor addresses
+  '0x0000000000000000000000000000000000000000': 'Beneficiary Address'
+  '0x0000000000000000000000000000000000000001': 'Release Gold Address'
+  '0x0000000000000000000000000000000000000002': 'Voter Address'
