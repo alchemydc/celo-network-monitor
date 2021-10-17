@@ -8,8 +8,7 @@
     "dev": "NODE_ENV=development ts-node-dev -r dotenv/config ./src/main.ts",
     "eslint": "npx eslint src/*.ts src/monitor/*.ts",
     "prettier": "prettier --write src/*.ts src/monitor/*.ts",
-    "test": "ts-mocha -p tsconfig.json src/**/*.test.ts --exit",
-    "prepare": "yarn run snyk-protect"
+    "test": "ts-mocha -p tsconfig.json src/**/*.test.ts --exit"
   },
   "_moduleAliases": {
     "~": "src"
