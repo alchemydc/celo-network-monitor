@@ -1,5 +1,5 @@
 import { ElectionResultsCache } from "@celo/celocli/lib/utils/election";
-import { discordAddressDetails, addressExplorerUrl } from "./alert";
+import { discordAddressDetails, addressExplorerUrl, discordSignerDowntime, discordSignerBlocksProposed } from "./alert";
 import BigNumber from "bignumber.js";
 import MonitorBase from "./monitorBase";
 import { Block } from 'web3-eth/types/index'
@@ -94,11 +94,11 @@ export default class MonitorValidators extends MonitorBase {
 				await this.alert.discordWarn(
 					`\`${this.addresses.alias(
 						validator
-					)}\` missed mining \`${missedBlockCount}/${expectedBlockCount}\` blocks. Are we healthy? ${discordAddressDetails(
+					)}\` missed proposing \`${missedBlockCount}/${expectedBlockCount}\` blocks. Are we healthy? ${discordSignerBlocksProposed(
 						signer
 					)}`,
 					60 * 10,
-					`${this.addresses.alias(validator)} is missing blocks`
+					`${this.addresses.alias(validator)} is failing to propose blocks`
 				);
 			}
 		}
@@ -129,38 +129,46 @@ export default class MonitorValidators extends MonitorBase {
 		signer: string
 	) {
 		// Alert when we're missing many block signatures
-		const missedSignatures =
-			signatures.eligibleBlocks - signatures.signedBlocks;
+		const missedSignatures = signatures.eligibleBlocks - signatures.signedBlocks;
+		console.debug("missedSignatures = " + missedSignatures)
 		// Take miss percentage against total blocks so we don't page when
 		// e.g. missed 1/1 sigs at the start of a cycle
 		const missPercentage = missedSignatures / signatures.totalBlocks;
+		console.debug("missPercentage = " + missPercentage + " which is " + missPercentage * 100 + "%")
 
 		const warnPercentage = Number(process.env.MISSED_SIGNATURE_WARN_PCT) || 0.1;
 		const pagePercentage = Number(process.env.MISSED_SIGNATURE_PAGE_PCT) || 0.5;
 
+		console.debug("warnPercentage = + " + warnPercentage)
+		if (missPercentage > warnPercentage) {
+			console.debug("missPercentage is > warnPercentage")
+		} else {
+			console.debug("missPercentage is < warnPercentage")
+		}
+
 		// Message when we're missing % of blocks
 		if (missPercentage > warnPercentage) {
-			await this.alert.discord(
-				`\`${this.addresses.alias(validator)}\` missed \`${missedSignatures}/${
-					signatures.eligibleBlocks
-				}\` signatures. Is this validator signer offline? ${discordAddressDetails(
-					signer
-				)}`,
+			await this.alert.discord(this.addresses.alias(validator) + ' missed signing ' + missedSignatures + ' of last ' + signatures.eligibleBlocks + ' (' + missPercentage*100 
+			+ '%) blocks.\n' 
+			+ 'Is this validator signer offline?\n' + discordSignerDowntime(signer),
 				60 * 5,
 				`${this.addresses.alias(validator)} is missing signatures`
 			);
 		}
+		
 		// Page when we're missing > % of blocks
+		
 		if (missPercentage > pagePercentage) {
-			await this.alert.page(
+			return
+			/* await this.alert.page(
 				`Celo Validator Missing Signatures`,
 				`${this.addresses.alias(validator)} has missed ${missedSignatures}/${
 					signatures.eligibleBlocks
 				} signatures. Is this validator signer offline?  See: https://explorer.celo.org/address/${signer}/downtime`,
 				60 * 10,
 				`${this.addresses.alias(validator)} is missing signatures`
-			);
-		}
+			); */
+		} 
 	}
 
 	/** Check block signatures for misses */
@@ -188,6 +196,7 @@ export default class MonitorValidators extends MonitorBase {
 					sequentialMisses = 0;
 				} else {
 					sequentialMisses++;
+					console.debug("sequentialMisses: " + sequentialMisses)
 
 					const missedBlockNumber = block.number - 1;
 					await this.metrics.logUnique(
@@ -209,8 +218,8 @@ export default class MonitorValidators extends MonitorBase {
 									validator
 								)}\` hasn't signed \`${sequentialMisses}\` sequential blocks at block \`${
 									block.number
-								}\` and is considered offline ${discordAddressDetails(
-									validator
+								}\` and is considered offline ${discordSignerDowntime(
+									signer
 								)}`,
 								30 * 60,
 								`${validator}-${sequentialMisses}-sequential_missed_signatures`

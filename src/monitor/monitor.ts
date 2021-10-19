@@ -71,7 +71,7 @@ export default class CeloMonitor {
 		];
 
 		if (!(await nodeIsSynced(kit.web3))) {
-			console.log("Node must be sycned to monitor. Exiting early.");
+			console.log("Node must be synced to monitor. Exiting.");
 			return;
 		}
 

@@ -69,12 +69,12 @@ export default class Alert implements AlertInterface {
 		alertKey: string = Web3.utils.keccak256(text)
 	): Promise<void> {
 		if (this.#debug) {
-			console.log(`\nWOULD HAVE SLACKED WITH:\n- message: ${text}\n`);
+			console.debug(`\nSending discord message:\nmessage: ${text}\n`);
 			//return;
 		}
 		if (this.shouldAlert(this.#discordThrottle, alertKey, throttleSeconds)) {
 			console.log(`Discord Info Alerting: ${text}`);
-			this.#discordHook.setUsername("Celo Validator Monitor Service");
+			this.#discordHook.setUsername("Celo Monitor Service");
 			this.#discordHook.send(text);
 		}
 	}
@@ -181,13 +181,29 @@ export function discordAddressDetails(address: string): string {
 	}
 	return "";
 }
+
+export function discordSignerDowntime(address: string): string {
+	if (isValidAddress(address)) {
+		return `${addressExplorerUrl(address) + '/signed' }`;
+	}
+	return "";
+}
+
+export function discordSignerBlocksProposed(address: string): string {
+	if (isValidAddress(address)) {
+		return `${addressExplorerUrl(address) + '/validations' }`;
+	}
+	return "";
+}
+
 /** Block Explorer Url */
 export function blockExplorerUrl(blockNumber: number): string {
 	return `https://explorer.celo.org/blocks/${blockNumber}`;
 }
-export function slackBlockDetails(blockNumber: number): string {
-	//return `[<${blockExplorerUrl(blockNumber)}|Details>]`;
-	return `[<${blockExplorerUrl(blockNumber)}]`;
+
+// uri for details of a block
+export function blockDetails(blockNumber: number): string {
+	return `${blockExplorerUrl(blockNumber)}`;
 }
 
 function isValidAddress(address: string): boolean {

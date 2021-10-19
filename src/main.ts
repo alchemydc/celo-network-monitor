@@ -13,7 +13,7 @@ async function main(): Promise<void> {
 
 	// Setup the Monitor
 	const addressFile = process.env.ADDRESS_FILE || "";
-	const monitor = new CeloMonitor(new KitProvider(), addressFile, 200, debug);
+	const monitor = new CeloMonitor(new KitProvider(), addressFile, 200, debug);	// scan 200 blocks at a time
 	console.log(addressFile);
 
 	// Run forever
