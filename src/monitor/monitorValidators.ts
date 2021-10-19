@@ -2,7 +2,7 @@ import { ElectionResultsCache } from "@celo/celocli/lib/utils/election";
 import { discordAddressDetails, addressExplorerUrl } from "./alert";
 import BigNumber from "bignumber.js";
 import MonitorBase from "./monitorBase";
-import { BlockTransactionString } from "web3-eth/types/index";
+import { Block } from 'web3-eth/types/index'
 
 const scoreCache = new Map<string, BigNumber>();
 
@@ -28,6 +28,8 @@ export default class MonitorValidators extends MonitorBase {
 		// Get validators that _will_ be elected
 		const validatorSigners = await this.getValidatorSigners();
 		const validatorSetSize = await election.numberValidatorsInSet(this.blocks[this.blocks.length - 1].number)
+		
+		console.debug("There are " + validatorSetSize + " validators in the elected set");
 		const frontRunnerSigners = await election.electValidatorSigners();
 
 		// Monitor signatures of each of our validators
@@ -64,8 +66,7 @@ export default class MonitorValidators extends MonitorBase {
 				signer,
 				this.blocks
 			);
-			this.alertOnMissedSignatures(validator, signatures);
-			//this.alertOnMissedBlocks(validator, signatures, signer, this.blocks);
+			this.alertOnMissedSignatures(validator, signatures, signer);
 			this.alertOnMissedBlocks(validator, validatorSetSize, signatures, signer, this.blocks)
 		}
 	}
@@ -76,15 +77,12 @@ export default class MonitorValidators extends MonitorBase {
 		validatorSetSize: number,
 		signatures: BlockSignatureCount,
 		signer: string,
-		blocks: BlockTransactionString[]
+		blocks: Block[]
 	) {
 		// Alert if we're not proposing blocks
 		const proposedBlockCount = blocks.filter((b) => b.miner === signer).length;
 		const expectedBlockCount = Math.floor(signatures.eligibleBlocks / validatorSetSize)
-		const missedBlockCount = Math.max(
-			expectedBlockCount - proposedBlockCount,
-			0
-		);
+		const missedBlockCount = Math.max(expectedBlockCount - proposedBlockCount,0);
 
 		console.log(`monitorValidator::alertOnMissedBlocks: blocks.length ${blocks.length} proposedBlockCount ${proposedBlockCount}, expectedBlockCount ${expectedBlockCount}, missedBlockCount ${missedBlockCount}`);
 
@@ -97,7 +95,7 @@ export default class MonitorValidators extends MonitorBase {
 					`\`${this.addresses.alias(
 						validator
 					)}\` missed mining \`${missedBlockCount}/${expectedBlockCount}\` blocks. Are we healthy? ${discordAddressDetails(
-						validator
+						signer
 					)}`,
 					60 * 10,
 					`${this.addresses.alias(validator)} is missing blocks`
@@ -112,7 +110,7 @@ export default class MonitorValidators extends MonitorBase {
 				`${this.addresses.alias(
 					validator
 				)} missed mining ${missedBlockCount}/${expectedBlockCount} blocks. Are we offline? See: ${addressExplorerUrl(
-					validator
+					signer
 				)}`,
 				60 * 10,
 				`${this.addresses.alias(validator)} is missing blocks`
@@ -127,7 +125,8 @@ export default class MonitorValidators extends MonitorBase {
 	/** Slack or Page when we're missing too many signatures */
 	async alertOnMissedSignatures(
 		validator: string,
-		signatures: BlockSignatureCount
+		signatures: BlockSignatureCount,
+		signer: string
 	) {
 		// Alert when we're missing many block signatures
 		const missedSignatures =
@@ -144,8 +143,8 @@ export default class MonitorValidators extends MonitorBase {
 			await this.alert.discord(
 				`\`${this.addresses.alias(validator)}\` missed \`${missedSignatures}/${
 					signatures.eligibleBlocks
-				}\` signatures. Is this validator offline? ${discordAddressDetails(
-					validator
+				}\` signatures. Is this validator signer offline? ${discordAddressDetails(
+					signer
 				)}`,
 				60 * 5,
 				`${this.addresses.alias(validator)} is missing signatures`
@@ -157,7 +156,7 @@ export default class MonitorValidators extends MonitorBase {
 				`Celo Validator Missing Signatures`,
 				`${this.addresses.alias(validator)} has missed ${missedSignatures}/${
 					signatures.eligibleBlocks
-				} signatures. Is this validator offline?  See: https://explorer.celo.org/address/${validator}`,
+				} signatures. Is this validator signer offline?  See: https://explorer.celo.org/address/${signer}/downtime`,
 				60 * 10,
 				`${this.addresses.alias(validator)} is missing signatures`
 			);
@@ -169,7 +168,7 @@ export default class MonitorValidators extends MonitorBase {
 		electionCache: ElectionResultsCache,
 		validator: string,
 		signer: string,
-		blocks: BlockTransactionString[]
+		blocks: Block[]
 	): Promise<BlockSignatureCount> {
 		const signatures: BlockSignatureCount = {
 			signedBlocks: 0,

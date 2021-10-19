@@ -1,5 +1,5 @@
 import { Webhook } from "discord-webhook-node";
-import { event } from "@pagerduty/pdjs";
+//import { event } from "@pagerduty/pdjs";
 import Web3 from "web3";
 export interface AlertInterface {
 	discord(
@@ -70,7 +70,7 @@ export default class Alert implements AlertInterface {
 	): Promise<void> {
 		if (this.#debug) {
 			console.log(`\nWOULD HAVE SLACKED WITH:\n- message: ${text}\n`);
-			return;
+			//return;
 		}
 		if (this.shouldAlert(this.#discordThrottle, alertKey, throttleSeconds)) {
 			console.log(`Discord Info Alerting: ${text}`);
@@ -121,13 +121,13 @@ export default class Alert implements AlertInterface {
 			console.log(
 				`\nWOULD HAVE PAGED WITH:\n- title:${title}\n- details:${details}\n`
 			);
-			return;
+			//return;
 		}
 
 		if (this.shouldAlert(this.#pdThrottle, alertKey, throttleSeconds)) {
 			console.log(`Paging: ${title}`);
 
-			event({
+			/* event({
 				data: {
 					routing_key: process.env.PD_EVENTS_ROUTING_KEY || "YOUR_ROUTING_KEY",
 					event_action: "trigger",
@@ -142,7 +142,7 @@ export default class Alert implements AlertInterface {
 				.then(console.log)
 				.catch(console.error);
 
-			this.discord(`Paging with title: \`${title}\``);
+			this.discord(`Paging with title: \`${title}\``); */
 		}
 	}
 
@@ -176,7 +176,8 @@ export function addressExplorerUrl(address: string): string {
 }
 export function discordAddressDetails(address: string): string {
 	if (isValidAddress(address)) {
-		return `[<${addressExplorerUrl(address)}|Details>]`;
+		//return `[<${addressExplorerUrl(address)}|Details>]`;
+		return `${addressExplorerUrl(address)}`;
 	}
 	return "";
 }
@@ -185,7 +186,8 @@ export function blockExplorerUrl(blockNumber: number): string {
 	return `https://explorer.celo.org/blocks/${blockNumber}`;
 }
 export function slackBlockDetails(blockNumber: number): string {
-	return `[<${blockExplorerUrl(blockNumber)}|Details>]`;
+	//return `[<${blockExplorerUrl(blockNumber)}|Details>]`;
+	return `[<${blockExplorerUrl(blockNumber)}]`;
 }
 
 function isValidAddress(address: string): boolean {
