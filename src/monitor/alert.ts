@@ -196,6 +196,13 @@ export function discordSignerBlocksProposed(address: string): string {
 	return "";
 }
 
+export function discordCeloInfo(address: string): string {
+	if (isValidAddress(address)) {
+		return `${addressExplorerUrl(address) + '/celo' }`;
+	}
+	return "";
+}
+
 /** Block Explorer Url */
 export function blockExplorerUrl(blockNumber: number): string {
 	return `https://explorer.celo.org/blocks/${blockNumber}`;

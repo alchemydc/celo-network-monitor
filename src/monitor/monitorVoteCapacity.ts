@@ -1,7 +1,7 @@
 import MonitorBase from "./monitorBase";
 import { weiToIntegerFloor, weiToIntegerFloorCommas } from "./formatting";
 import BigNumber from "bignumber.js";
-import { discordAddressDetails } from "./alert";
+import { discordCeloInfo } from "./alert";
 
 const voteCache = new Map<string, BigNumber>();
 
@@ -60,7 +60,7 @@ export default class MonitorVoteCapacity extends MonitorBase {
 									deltaVotes
 								)}\` to \`${weiToIntegerFloorCommas(
 									votes
-								)}\` ${discordAddressDetails(group)}`
+								)}\` ${discordCeloInfo(group)}`
 							);
 						}
 					}
