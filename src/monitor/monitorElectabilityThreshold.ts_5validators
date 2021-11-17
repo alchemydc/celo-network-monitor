@@ -8,26 +8,22 @@ export default class MonitorElectabilityThreshold extends MonitorBase {
 			await election.electabilityThreshold()
 		).toNumber();
 		this.metrics.log("ElectabilityThreshold", electabilityThreshold);
-		console.debug("Electabilitythreshold: " + electabilityThreshold)
-		const fullGroupVoteThreshold = electabilityThreshold * 2 + 1;
+		const fullGroupVoteThreshold = electabilityThreshold * 5 + 1;
 		this.metrics.log("FullGroupVoteThreshold", fullGroupVoteThreshold);
-		console.debug("FullGroupVoteThreshold: " + fullGroupVoteThreshold);
 
 		// Now find the margin on our groups
 		for (const group of this.addresses.groups()) {
 			const totalGroupVotes = (await election.getTotalVotesForGroup(group))
 				.dividedBy(1e18)
 				.toNumber();
-				console.debug("totalGroupVotes: + " + totalGroupVotes)
 			if (totalGroupVotes > 0) {
 				this.metrics.log(
 					"GroupVotes",
 					totalGroupVotes,
 					this.addresses.alias(group)
 				);
-				// Votes for last (2nd) validator
-				const votesForLastValidator = totalGroupVotes / 2;
-				console.debug("VotesForLastValidator: " + votesForLastValidator)
+				// Votes for last (5th) validator
+				const votesForLastValidator = totalGroupVotes / 5;
 				this.metrics.log(
 					"VotesForLastValidator",
 					votesForLastValidator,
@@ -35,16 +31,15 @@ export default class MonitorElectabilityThreshold extends MonitorBase {
 				);
 				// Excess votes
 				if (votesForLastValidator > electabilityThreshold) {
-					const excessVotesFor2ndValidator = Math.min(
-						(votesForLastValidator - electabilityThreshold) * 2,
+					const excessVotesFor5thValidator = Math.min(
+						(votesForLastValidator - electabilityThreshold) * 5,
 						totalGroupVotes
 					);
 					this.metrics.log(
 						"ExcessGroupVotes",
-						excessVotesFor2ndValidator,
+						excessVotesFor5thValidator,
 						this.addresses.alias(group)
 					);
-					console.debug("ExcessGroupVotes: " + excessVotesFor2ndValidator)
 				}
 			}
 		}
