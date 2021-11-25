@@ -16,6 +16,7 @@ describe("monitorValidators", function () {
 		const args = NewMonitorArgs();
 		const validator = "0xvalidator";
 		const signer = "0xsigner";
+		const validatorSetSize = 110;
 		
 		const discord = sinon.spy(args.alert, "discord");
 		const warn = sinon.spy(args.alert, "discordWarn");
@@ -80,7 +81,7 @@ describe("monitorValidators", function () {
 
 		let blocks : BlockTransactionString[] = [dummyBlock0, dummyBlock1];
 
-		await monitor.alertOnMissedBlocks(validator, signatures, signer, blocks);
+		await monitor.alertOnMissedBlocks(validator, validatorSetSize, signatures, signer, blocks);
 		assert(!discord.called);
 		assert(!warn.called);
 		assert(!error.called);
@@ -97,7 +98,7 @@ describe("monitorValidators", function () {
 
 		blocks = [dummyBlock0, dummyBlock1];
 
-		await monitor.alertOnMissedBlocks(validator, signatures, signer, blocks);
+		await monitor.alertOnMissedBlocks(validator, validatorSetSize, signatures, signer, blocks);
 		assert(!discord.called);
 		assert(!warn.called);
 		assert(!error.called);
@@ -114,7 +115,7 @@ describe("monitorValidators", function () {
 
 		blocks = [dummyBlock0, dummyBlock1];
 
-		await monitor.alertOnMissedBlocks(validator, signatures, signer, blocks);
+		await monitor.alertOnMissedBlocks(validator, validatorSetSize, signatures, signer, blocks);
 		assert(!discord.called);
 		assert(warn.called);
 		assert(!error.called);
@@ -139,10 +140,11 @@ describe("monitorValidators", function () {
 		};
 
 		const monitor = new MonitorValidators(args);
+		const signer = "0x...";
 
 		// 100% Signed
 		signatures.signedBlocks = signatures.totalBlocks * 1;
-		await monitor.alertOnMissedSignatures("", signatures);
+		await monitor.alertOnMissedSignatures("", signatures, signer);
 		assert(!discord.called);
 		assert(!warn.called);
 		assert(!error.called);
@@ -154,7 +156,7 @@ describe("monitorValidators", function () {
 
 		// 95% Signed
 		signatures.signedBlocks = signatures.totalBlocks * 0.95;
-		await monitor.alertOnMissedSignatures("", signatures);
+		await monitor.alertOnMissedSignatures("", signatures, signer);
 		assert(!discord.called);
 		assert(!warn.called);
 		assert(!error.called);
@@ -166,8 +168,8 @@ describe("monitorValidators", function () {
 
 		// 93% Signed
 		signatures.signedBlocks = signatures.totalBlocks * 0.93;
-		await monitor.alertOnMissedSignatures("", signatures);
-		assert(discord.called);
+		await monitor.alertOnMissedSignatures("", signatures, signer);
+		assert(!discord.called);
 		assert(!warn.called);
 		assert(!error.called);
 		assert(!page.called);
@@ -178,11 +180,11 @@ describe("monitorValidators", function () {
 
 		// 89% Signed
 		signatures.signedBlocks = signatures.totalBlocks * 0.89;
-		await monitor.alertOnMissedSignatures("", signatures);
-		assert(discord.calledOnce);
+		await monitor.alertOnMissedSignatures("", signatures, signer);
+		assert(!discord.calledOnce);
 		assert(!warn.calledOnce);
 		assert(!error.called);
-		assert(page.called);
+		assert(!page.called);
 		discord.resetHistory();
 		warn.resetHistory();
 		error.resetHistory();
