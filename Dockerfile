@@ -1,4 +1,5 @@
-FROM node:12-buster as base
+#FROM node:12-buster as base
+FROM node:12-bullseye as base
 FROM base as builder
 
 RUN apt-get update && \
@@ -7,7 +8,7 @@ RUN apt-get update && \
 WORKDIR /opt/monitor
 
 RUN mkdir -p /opt/monitor/
-ADD package.json yarn.lock .snyk /opt/monitor/
+ADD package.json yarn.lock .snyk VERSION /opt/monitor/ 
 RUN yarn
 
 ADD . /opt/monitor/
@@ -18,12 +19,15 @@ RUN yarn install --production
 
 FROM base
 
-ENV ENV_FILE .env-template
+#ENV ENV_FILE .env-template
 
 WORKDIR /opt/monitor
-COPY --from=builder /opt/monitor/.env* /opt/monitor/
+COPY --from=builder /opt/monitor/.env-template /opt/monitor/
 COPY --from=builder /opt/monitor/build /opt/monitor/
 COPY --from=builder /opt/monitor/package.json /opt/monitor/package.json
 COPY --from=builder /opt/monitor/node_modules /opt/monitor/node_modules
+COPY --from=builder /opt/monitor/wrapper.sh /opt/monitor/wrapper.sh
 
-CMD ["yarn", "start"]
+#CMD ["yarn", "start"]
+#CMD ["wrapper.sh"]
+ENTRYPOINT exec /opt/monitor/wrapper.sh
