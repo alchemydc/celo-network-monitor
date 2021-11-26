@@ -7,10 +7,10 @@ RUN apt-get update && \
 WORKDIR /opt/monitor
 
 RUN mkdir -p /opt/monitor/
-ADD ../package.json ../yarn.lock ../.snyk ../VERSION /opt/monitor/ 
+ADD package.json yarn.lock .snyk VERSION /opt/monitor/ 
 RUN yarn
 
-ADD .. /opt/monitor/
+ADD . /opt/monitor/
 RUN yarn build
 
 RUN rm -rf node_modules

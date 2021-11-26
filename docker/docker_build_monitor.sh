@@ -3,4 +3,5 @@ set -x
 
 VERSION=$(cat ../VERSION)
 
-docker build -t celo-network-monitor:$VERSION .
+cd ..
+docker build -f docker/Dockerfile -t celo-network-monitor:$VERSION .
