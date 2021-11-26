@@ -21,9 +21,9 @@ services:
     image: celo-network-monitor:latest
     container_name: celo-mainnet-monitor
     env_file:
-    - ${HOME}/celo-network-monitor/env-template.env
+    - ${HOME}/celo-network-monitor/template.env
     volumes:
-      - ${HOME}/celo-network-monitor/docker/mainnet/addresses.mainnet.yaml:/opt/monitor/addresses.mainnet.yaml
+      - ${HOME}/celo-network-monitor/template-addresses.mainnet.yaml:/opt/monitor/addresses.mainnet.yaml
     #ports:
     #  - 8080:8080
     # no need to expose tcp/8080 outside the container.  it's used only to trigger the monitor via curl in the wrapper script

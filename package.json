@@ -1,6 +1,7 @@
 {
   "name": "celo-network-monitor",
   "version": "0.0.3",
+  "SPDX-License-Identifier": "BlueOak-1.0.0",
   "scripts": {
     "build": "npx tsc -p .",
     "postbuild": "copyfiles *.yaml build/",
@@ -16,7 +17,7 @@
     "~": "src"
   },
   "dependencies": {
-    "@celo/celocli": "1.2.0",
+    "@celo/celocli": "1.3.0",
     "@celo/contractkit": "1.2.0",
     "@pagerduty/pdjs": "2.2.2",
     "bignumber.js": "9.0.1",
