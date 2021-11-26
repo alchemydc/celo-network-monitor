@@ -1,27 +1,45 @@
+###################################################################
 # Full node to use for monitoring
-RPC_URL='http://localhost:8545'
-
-# Monitor frequency (in seconds)
-CHECK_INTERVAL=60
+# 
+# uncomment this if you use docker-compose to deploy the stack
+#RPC_URL='http://localhost:8545'
+#
+# Else these public full nodes can be used instead (with no SLA)
+# mainnet
+RPC_URL='https://forno.celo.org:443'
+#
+# baklava testnet
+#RPC_URL='https://baklava-forno.celo-testnet.org:443'
+####################################################################
 
 # Addresses to monitor
 ADDRESS_FILE='addresses.mainnet.yaml'
 
-# Port for internal monitor service, need not be exposed internally
+# Monitor frequency (in seconds)
+CHECK_INTERVAL=60
+
+# Port for internal monitor service, need not be exposed outside the container
+# docker image curls this automatically via wrapper script
 PORT=8080
 
+#####################################################################################
+# Tunable parameters
+#
 # Warn (via discord) when missed signatures exceed this level.
 # 0.05 = 5%
 MISSED_SIGNATURE_WARN_PCT=0.05
-
+#
 # Page (via discord + pagerduty [not tested] when missed signatures exceed this level.
 # 0.05 = 5%
 MISSED_SIGNATURE_PAGE_PCT=0.05
+######################################################################################
 
+##########################################################
 # Pagerduty functionality is implemented but unmaintained
 PD_API_KEY='PAGERDUTY_NOT_TESTED'
 PD_SOURCE_DESCRIPTOR='CELO_MAINNET'
 PD_EVENTS_ROUTING_KEY=0123456789
+###########################################################
 
 # Webhook for your Discord server / channel
 # Notifications from monitor will be sent here

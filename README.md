@@ -19,14 +19,14 @@ yarn
 # Test
 yarn test
 # Run locally
-ENV_FILE=.env-template yarn dev
+ENV_FILE=env-template yarn dev
 ```
 
 ## Monitors
 
 Monitors can be enabled or disabled by commenting out desired monitors in `src/monitor/monitor.ts`. Default monitors include:
 
-* **Attestation Service** - Monitor a validator's Attestation service
+* **Attestation Service** - Monitor a validator's Attestation service (disabled by default)
 * **Balance** - Monitor the CELO and cUSD balances of all addresses specified in the addresses yaml file
 * **Electability Threshold** - Monitor the threshold of votes needed to get elected
 * **Governance** - Monitor the network for governance activity
@@ -39,9 +39,9 @@ Monitors can be enabled or disabled by commenting out desired monitors in `src/m
 
 ## Deployment
 
-The monitor can be containerized and readied for deploy like so. The container will listen on `$PORT` (default: 8080) and run anytime a request hits it. It's intended for deployment in a container management system with a job set to contact it every ~60 seconds to initiate a new run of the monitor.
+The monitor can be containerized and readied for deploy like so. The container will listen on `$PORT` (default: 8080) and run anytime a request hits it. It's intended for deployment in a container management system and the Docker image has a wrapper script that will contact it every CHECK_INTERVAL (default 60s) to initiate a new run of the monitor.
 
 ```shell
-docker build -t monitor .
+docker build -t celo-network-monitor-$(cat VERSION) .
 docker run monitor
 ```

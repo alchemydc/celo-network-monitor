@@ -1,0 +1,32 @@
+---
+version: "3.8"
+
+services:
+  celo-full-node:
+    image: us.gcr.io/celo-org/geth:latest
+    container_name: celo-full-node
+    command: --verbosity 2 --syncmode lightest --http --http.addr 0.0.0.0 --http.api eth,net,web3,debug,admin,personal --nousb --http.corsdomain celo-full-node --http.vhosts celo-full-node
+    volumes:
+      - ${HOME}/celo-network-monitor/mainnet/full-node-data:/root/.celo
+    #ports:
+    #  - 8545:8545
+    # 8545 need not be exposed outside the container, but can be if you want to use this node for other things besides just the monitor
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+
+  celo-mainnet-monitor:
+    depends_on:
+      - "celo-full-node"
+    image: celo-network-monitor:latest
+    container_name: celo-mainnet-monitor
+    env_file:
+    - mainnet.env
+    volumes:
+      - ${HOME}/celo-network-monitor/mainnet/addresses.mainnet.yaml:/opt/monitor/addresses.mainnet.yaml
+    #ports:
+    #  - 8080:8080
+    # no need to expose tcp/8080 outside the container.  it's used only to trigger the monitor via curl in the wrapper script
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
