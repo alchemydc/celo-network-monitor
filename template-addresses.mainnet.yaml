@@ -1,9 +1,9 @@
 GroupAccounts:
 # Your top level group accounts
-- '0x0000000000000000000000000000000000000000'
+- '0x8eB004daD9397B8f23E1279905c584920000756D'
 Addresses:
   # List of all *stable* addresses that won't be rotated
   # i.e. everything except your validator signer and attestor addresses
-  '0x0000000000000000000000000000000000000000': 'Beneficiary Address'
-  '0x0000000000000000000000000000000000000001': 'Release Gold Address'
-  '0x0000000000000000000000000000000000000002': 'Voter Address'
+  '0x8eB004daD9397B8f23E1279905c584920000756D': 'Mainnet Validator Group Address'
+  '0x474df04481f778b46Fc71204C72B6A8BE396F0FF': 'Mainnet Validator1 Address'
+  '0x307d958d9f0235058fE0a7e7e717A63d5aD6B143': 'Mainnet Validator2 Address'

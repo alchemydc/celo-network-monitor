@@ -2,7 +2,8 @@ FROM node:12-bullseye as base
 FROM base as builder
 
 RUN apt-get update && \
-    apt-get install -y libudev-dev libusb-1.0-0-dev build-essential python3 make g++ gcc
+    DEBIAN_FRONTEND=noninteractive apt-get install -y libudev-dev libusb-1.0-0-dev build-essential python3 make g++ gcc && \
+    rm -rf /var/lib/apt/lists/*
 
 WORKDIR /opt/monitor
 

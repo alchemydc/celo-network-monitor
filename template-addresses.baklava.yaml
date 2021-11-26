@@ -1,9 +1,7 @@
 GroupAccounts:
 # Your top level group accounts
-- '0x0000000000000000000000000000000000000000'
+- '0x7578ef7d81EdC62774cb1BC97194051D8418ba0d'
 Addresses:
   # List of all *stable* addresses that won't be rotated
   # i.e. everything except your validator signer and attestor addresses
-  '0x0000000000000000000000000000000000000000': 'Beneficiary Address'
-  '0x0000000000000000000000000000000000000001': 'Release Gold Address'
-  '0x0000000000000000000000000000000000000002': 'Voter Address'
+  '0x44451e45d8B05e0564580571541392Dd55578094': 'Baklava Validator Address'

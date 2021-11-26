@@ -7,9 +7,17 @@ Monitor the health of a Celo validator deployment with alerts like:
 
 ![Example Alert](example.png)
 
-## Usage
+## Quick Start
 
-First, set the addresses you'd like to monitor in `addresses.<network>.yaml` and set your node and alerting envars in `.env-<network>`. 
+1. Edit [template-addresses.mainnet.yaml](template-addresses.mainnet.yaml) to include addresses for your *your* validator group (and any other accounts you wish to monitor)
+2. Edit [template.env](template.env) to include *your* Discord webhook
+3. `cd docker && docker-compose up`
+4. Profit
+
+
+## Development
+
+First, set the addresses you'd like to monitor in `addresses.<network>.yaml` and set your node and alerting envars in `env-<network>`. 
 
 Then, develop this project locally with:
 
@@ -19,7 +27,7 @@ yarn
 # Test
 yarn test
 # Run locally
-ENV_FILE=env-template yarn dev
+ENV_FILE=env-network yarn dev
 ```
 
 ## Monitors

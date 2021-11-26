@@ -9,3 +9,7 @@ build
 addresses.mainnet.yaml
 addresses.baklava.yaml
 yarn.lock
+docker/mainnet/full-node-data/celo
+docker/mainnet/full-node-data/keystore
+
+

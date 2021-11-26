@@ -3,7 +3,7 @@ version: "3.8"
 
 services:
   celo-full-node:
-    image: us.gcr.io/celo-org/geth:latest
+    image: us.gcr.io/celo-org/geth:mainnet
     container_name: celo-full-node
     command: --verbosity 2 --syncmode lightest --http --http.addr 0.0.0.0 --http.api eth,net,web3,debug,admin,personal --nousb --http.corsdomain celo-full-node --http.vhosts celo-full-node
     volumes:
