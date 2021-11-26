@@ -1,6 +1,6 @@
 {
   "name": "celo-network-monitor",
-  "version": "0.0.1",
+  "version": "0.0.3",
   "scripts": {
     "build": "npx tsc -p .",
     "postbuild": "copyfiles *.yaml build/",
