@@ -1,5 +1,5 @@
-#!/bin/bash
-/usr/local/bin/yarn start &
+#!/bin/sh
+yarn start &
 while true; do
-/usr/bin/curl -s "http://127.0.0.1:$PORT" && /bin/sleep $CHECK_INTERVAL;
+curl -s "http://127.0.0.1:$PORT" && sleep $CHECK_INTERVAL;
 done;

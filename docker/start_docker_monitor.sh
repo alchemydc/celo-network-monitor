@@ -6,11 +6,11 @@ set -x
 # for docker-compose stack, localhost:8545 works
 
 docker run --rm --name celo-network-monitor \
---env-file ../env-template \
---mount type=bind,source=$HOME/celo-network-monitor/addresses.baklava.yaml,target=/opt/monitor/addresses.baklava.yaml,ro \
+--env-file ../mainnet.env \
+--mount type=bind,source=$HOME/celo-network-monitor/template-addresses.mainnet.yaml,target=/opt/monitor/addresses.mainnet.yaml,ro \
 -p 8080:8080 \
 -it \
-celo-network-monitor:latest
+celo-network-monitor:latest /bin/sh
 
 # curl the container host on tcp/8080 to trigger the monitor manually
 # eg `curl -v 'http://localhost:8080`

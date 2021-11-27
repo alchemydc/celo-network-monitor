@@ -7,10 +7,10 @@ import { logLevelDebug, logLevelInfo } from "./log";
 
 async function main(): Promise<void> {
 	// Load env
-	//const envFile = process.env.ENV_FILE || ".env-mainnet";
-	const envFile = process.env.ENV_FILE;
+	const envFile = process.env.ENV_FILE || "environment.env";
 	console.log(dotenv.config({ path: envFile }));
 	const debug = process.env.NODE_ENV == "development";
+	console.log("debug: " + debug)
 
 	// Setup the Monitor
 	const addressFile = process.env.ADDRESS_FILE || "";

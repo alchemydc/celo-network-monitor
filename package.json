@@ -1,8 +1,8 @@
 {
   "name": "celo-network-monitor",
   "description": "Tool for monitoring Celo validators and alerting to Discord",
-  "version": "0.0.4",
-  "license": "BlueOak-1.0.0",
+  "version": "0.0.5",
+  "license": "MIT",
   "scripts": {
     "build": "npx tsc -p .",
     "postbuild": "copyfiles *.yaml build/",
