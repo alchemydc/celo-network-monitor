@@ -20,7 +20,7 @@ RUN yarn install --production
 FROM base
 
 WORKDIR /opt/monitor
-COPY --from=builder /opt/monitor/template.env /opt/monitor/
+#COPY --from=builder /opt/monitor/template.env /opt/monitor/
 COPY --from=builder /opt/monitor/build /opt/monitor/
 COPY --from=builder /opt/monitor/package.json /opt/monitor/package.json
 COPY --from=builder /opt/monitor/node_modules /opt/monitor/node_modules

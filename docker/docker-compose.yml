@@ -21,9 +21,38 @@ services:
     image: celo-network-monitor:latest
     container_name: celo-mainnet-monitor
     env_file:
-    - ${HOME}/celo-network-monitor/template.env
+    - ${HOME}/celo-network-monitor/mainnet.env
     volumes:
       - ${HOME}/celo-network-monitor/template-addresses.mainnet.yaml:/opt/monitor/addresses.mainnet.yaml
+    #ports:
+    #  - 8080:8080
+    # no need to expose tcp/8080 outside the container.  it's used only to trigger the monitor via curl in the wrapper script
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+
+  celo-baklava-full-node:
+    image: us.gcr.io/celo-org/geth:mainnet
+    container_name: celo-baklava-full-node
+    command: --baklava --verbosity 2 --syncmode lightest --http --http.addr 0.0.0.0 --http.api eth,net,web3,debug,admin,personal --nousb --http.corsdomain celo-baklava-full-node --http.vhosts celo-baklava-full-node
+    volumes:
+      - ${HOME}/celo-network-monitor/docker/baklava/full-node-data:/root/.celo
+    #ports:
+    #  - 8545:8545
+    # 8545 need not be exposed outside the container, but can be if you want to use this node for other things besides just the monitor
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+
+  celo-baklava-monitor:
+    depends_on:
+      - "celo-baklava-full-node"
+    image: celo-network-monitor:latest
+    container_name: celo-baklava-monitor
+    env_file:
+    - ${HOME}/celo-network-monitor/baklava.env
+    volumes:
+      - ${HOME}/celo-network-monitor/template-addresses.baklava.yaml:/opt/monitor/addresses.baklava.yaml
     #ports:
     #  - 8080:8080
     # no need to expose tcp/8080 outside the container.  it's used only to trigger the monitor via curl in the wrapper script
