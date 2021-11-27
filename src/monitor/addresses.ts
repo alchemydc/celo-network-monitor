@@ -10,7 +10,7 @@ export default class Addresses {
 		this.#groups = new Array();
 
 		if (addressFile) {
-			let raw = fs.readFileSync(addressFile);
+			let raw = fs.readFileSync(addressFile).toString();
 			const data = yaml.load(raw);
 			// Load all addresses
 			for (const entry of Object.keys(data.Addresses)) {

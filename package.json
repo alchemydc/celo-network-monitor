@@ -2,7 +2,6 @@
   "name": "celo-network-monitor",
   "description": "Tool for monitoring Celo validators and alerting to Discord",
   "version": "0.0.3",
-  "SPDX-License-Identifier": "BlueOak-1.0.0",
   "license": "BlueOak-1.0.0",
   "scripts": {
     "build": "npx tsc -p .",
