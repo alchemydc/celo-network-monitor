@@ -3,9 +3,6 @@ ts-build
 yarn-error.log
 build
 .DS_Store
-# Env files
-!.env-template
-.env*
 addresses.mainnet.yaml
 addresses.baklava.yaml
 yarn.lock
