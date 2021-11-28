@@ -48,13 +48,13 @@ export default abstract class MonitorBase implements MonitorArgs {
 
 	/** Main method to monitor anything specified in a subclass  */
 	async monitor(): Promise<void> {
-		console.log(`CeloMonitor::${this.constructor.name}() - Started`);
+		console.debug(`CeloMonitor::${this.constructor.name}() - Started`);
 		const start = new Date().getTime();
 
 		await this.run();
 
 		const duration = Math.floor(new Date().getTime() - start) / 1000;
-		console.log(
+		console.debug(
 			`CeloMonitor::${this.constructor.name}() - Finished in ${duration}s`
 		);
 	}

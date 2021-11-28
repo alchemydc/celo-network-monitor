@@ -84,7 +84,7 @@ export default class MonitorValidators extends MonitorBase {
 		const expectedBlockCount = Math.floor(signatures.eligibleBlocks / validatorSetSize)
 		const missedBlockCount = Math.max(expectedBlockCount - proposedBlockCount,0);
 
-		console.log(`monitorValidator::alertOnMissedBlocks: blocks.length ${blocks.length} proposedBlockCount ${proposedBlockCount}, expectedBlockCount ${expectedBlockCount}, missedBlockCount ${missedBlockCount}`);
+		console.debug(`monitorValidator::alertOnMissedBlocks: blocks.length ${blocks.length} proposedBlockCount ${proposedBlockCount}, expectedBlockCount ${expectedBlockCount}, missedBlockCount ${missedBlockCount}`);
 
 		// Discord if we've missed one block
 		if (missedBlockCount > 0) {

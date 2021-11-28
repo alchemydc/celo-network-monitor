@@ -24,11 +24,11 @@ export default class Metrics {
 	/** log a Metric */
 	async log(key: string, value: number, identifier?: string): Promise<void> {
 		if (identifier == undefined) {
-			console.log(
+			console.debug(
 				`namespace="${this.#namespace}" key="${key}", value=${value}`
 			);
 		} else {
-			console.log(
+			console.debug(
 				`namespace="${
 					this.#namespace
 				}" key="${key}" value=${value} identifier="${identifier}"`

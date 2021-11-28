@@ -9,7 +9,13 @@ async function main(): Promise<void> {
 	// Load env
 	const envFile = process.env.ENV_FILE || "environment.env";
 	console.log(dotenv.config({ path: envFile }));
-	const debug = process.env.NODE_ENV == "development";
+	console.log("process.env.DEBUG == " + process.env.DEBUG);
+	const debug = process.env.NODE_ENV == "development" || process.env.DEBUG == "true"
+	/* if(process.env.DEBUG == "true") {
+		console.log("process.env.DEBUG evals to true")
+	} else {
+		console.log("process.env.DEBUG evals to false")
+	} */
 	console.log("debug: " + debug)
 
 	// Setup the Monitor

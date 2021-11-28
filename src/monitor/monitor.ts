@@ -42,7 +42,7 @@ export default class CeloMonitor {
 
 	async monitor() {
 		// Startup
-		console.log(`CeloMonitor() - Running`);
+		console.debug(`CeloMonitor() - Running`);
 		const start = new Date().getTime();
 		// Load vars
 		const kit = this.#provider.getKit();
@@ -86,7 +86,7 @@ export default class CeloMonitor {
 
 		// Print runtime
 		const duration = Math.floor(new Date().getTime() - start) / 1000;
-		console.log(`CeloMonitor() - Finished in ${duration}s`);
+		console.debug(`CeloMonitor() - Finished in ${duration}s`);
 	}
 
 	async runParallel(monitors: MonitorBase[]) {
