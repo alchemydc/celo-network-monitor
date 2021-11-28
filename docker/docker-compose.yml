@@ -18,7 +18,7 @@ services:
   celo-mainnet-monitor:
     depends_on:
       - "celo-full-node"
-    image: celo-network-monitor:latest
+    image: alchemydc/celo-network-monitor:latest
     container_name: celo-mainnet-monitor
     env_file:
     - ${HOME}/celo-network-monitor/mainnet.env
@@ -48,7 +48,7 @@ services:
   celo-baklava-monitor:
     depends_on:
       - "celo-baklava-full-node"
-    image: celo-network-monitor:latest
+    image: alchemydc/celo-network-monitor:latest
     container_name: celo-baklava-monitor
     env_file:
     - ${HOME}/celo-network-monitor/baklava.env
