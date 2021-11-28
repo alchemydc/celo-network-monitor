@@ -1,5 +1,3 @@
-#FROM node:12-bullseye as base
-#FROM base as builder
 FROM bitnami/node:12 AS builder
 
 RUN install_packages libudev-dev libusb-1.0-0-dev build-essential python3 make g++ gcc
@@ -11,16 +9,13 @@ ADD package.json yarn.lock .snyk VERSION /opt/monitor/
 RUN yarn
 
 ADD . /opt/monitor/
-RUN yarn build
+RUN yarn build && rm -rf node_modules && yarn install --production
 
-RUN rm -rf node_modules
-RUN yarn install --production
-
-#FROM base
 FROM bitnami/node:12-prod
 
 WORKDIR /opt/monitor
-COPY --from=builder /opt/monitor/build /opt/monitor/package.json /opt/monitor/node_modules /opt/monitor/wrapper.sh /opt/monitor/
+COPY --from=builder /opt/monitor/build /opt/monitor/
+COPY --from=builder /opt/monitor/node_modules /opt/monitor/node_modules
+COPY --from=builder /opt/monitor/package.json /opt/monitor/wrapper.sh /opt/monitor/
 
 ENTRYPOINT exec /opt/monitor/wrapper.sh
-

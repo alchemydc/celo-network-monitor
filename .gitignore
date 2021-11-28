@@ -9,4 +9,4 @@ yarn.lock
 docker/mainnet/full-node-data/celo
 docker/mainnet/full-node-data/keystore
 docker/baklava/full-node-data/baklava
-
+package-lock.json
