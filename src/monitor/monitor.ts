@@ -37,12 +37,12 @@ export default class CeloMonitor {
 		this.#alert = new Alert(debug);
 		this.#addresses = new Addresses(addressFile);
 		this.#debug = debug;
-		console.log(`CeloMonitor() - Constructor`);
+		console.debug(`CeloMonitor() - Constructor`);
 	}
 
 	async monitor() {
 		// Startup
-		console.debug(`CeloMonitor() - Running`);
+		console.log(`CeloMonitor() - Running`);
 		const start = new Date().getTime();
 		// Load vars
 		const kit = this.#provider.getKit();
@@ -86,7 +86,7 @@ export default class CeloMonitor {
 
 		// Print runtime
 		const duration = Math.floor(new Date().getTime() - start) / 1000;
-		console.debug(`CeloMonitor() - Finished in ${duration}s`);
+		console.log(`CeloMonitor() - Finished in ${duration}s`);
 	}
 
 	async runParallel(monitors: MonitorBase[]) {

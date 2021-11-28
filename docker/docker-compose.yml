@@ -5,7 +5,7 @@ services:
   celo-full-node:
     image: us.gcr.io/celo-org/geth:mainnet
     container_name: celo-full-node
-    command: --verbosity 2 --syncmode lightest --http --http.addr 0.0.0.0 --http.api eth,net,web3,debug,admin,personal --nousb --http.corsdomain celo-full-node --http.vhosts celo-full-node
+    command: --verbosity 1 --syncmode lightest --http --http.addr 0.0.0.0 --http.api eth,net,web3,debug,admin,personal --nousb --http.corsdomain celo-full-node --http.vhosts celo-full-node
     volumes:
       - ${HOME}/celo-network-monitor/docker/mainnet/full-node-data:/root/.celo
     #ports:
@@ -24,6 +24,7 @@ services:
     - ${HOME}/celo-network-monitor/mainnet.env
     volumes:
       - ${HOME}/celo-network-monitor/template-addresses.mainnet.yaml:/opt/monitor/addresses.mainnet.yaml
+      - ${HOME}/celo-network-monitor/mainnet.env:/opt/monitor/environment.env
     #ports:
     #  - 8080:8080
     # no need to expose tcp/8080 outside the container.  it's used only to trigger the monitor via curl in the wrapper script
@@ -34,7 +35,7 @@ services:
   celo-baklava-full-node:
     image: us.gcr.io/celo-org/geth:mainnet
     container_name: celo-baklava-full-node
-    command: --baklava --verbosity 2 --syncmode lightest --http --http.addr 0.0.0.0 --http.api eth,net,web3,debug,admin,personal --nousb --http.corsdomain celo-baklava-full-node --http.vhosts celo-baklava-full-node
+    command: --baklava --verbosity 1 --syncmode lightest --http --http.addr 0.0.0.0 --http.api eth,net,web3,debug,admin,personal --nousb --http.corsdomain celo-baklava-full-node --http.vhosts celo-baklava-full-node
     volumes:
       - ${HOME}/celo-network-monitor/docker/baklava/full-node-data:/root/.celo
     #ports:
@@ -53,6 +54,7 @@ services:
     - ${HOME}/celo-network-monitor/baklava.env
     volumes:
       - ${HOME}/celo-network-monitor/template-addresses.baklava.yaml:/opt/monitor/addresses.baklava.yaml
+      - ${HOME}/celo-network-monitor/baklava.env:/opt/monitor/environment.env
     #ports:
     #  - 8080:8080
     # no need to expose tcp/8080 outside the container.  it's used only to trigger the monitor via curl in the wrapper script

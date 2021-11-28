@@ -9,19 +9,13 @@ async function main(): Promise<void> {
 	// Load env
 	const envFile = process.env.ENV_FILE || "environment.env";
 	console.log(dotenv.config({ path: envFile }));
-	console.log("process.env.DEBUG == " + process.env.DEBUG);
 	const debug = process.env.NODE_ENV == "development" || process.env.DEBUG == "true"
-	/* if(process.env.DEBUG == "true") {
-		console.log("process.env.DEBUG evals to true")
-	} else {
-		console.log("process.env.DEBUG evals to false")
-	} */
 	console.log("debug: " + debug)
 
 	// Setup the Monitor
 	const addressFile = process.env.ADDRESS_FILE || "";
 	const monitor = new CeloMonitor(new KitProvider(), addressFile, 200, debug);	// scan 200 blocks at a time
-	console.log(addressFile);
+	console.debug("Reading addresses from: " + addressFile);
 
 	// Run forever
 	if (debug) {
