@@ -86,9 +86,9 @@ export default class MonitorValidators extends MonitorBase {
 
 		console.debug(`monitorValidator::alertOnMissedBlocks: blocks.length ${blocks.length} proposedBlockCount ${proposedBlockCount}, expectedBlockCount ${expectedBlockCount}, missedBlockCount ${missedBlockCount}`);
 
-		// Discord if we've missed one block 
-		// disabled because it's become very noisy as the network has started missing more signatures in aggregate
-		/* if (missedBlockCount > 0) {
+		// Discord if we've missed proposing > one block 
+		// incremented this b/c  it's become very noisy as the network has started missing more signatures in aggregate
+		 if (missedBlockCount > 1) {
 			
 			// Ignore single block misses near epoch transitions
 			if (!this.doBlocksIncludeEpochTransition()) {
@@ -99,10 +99,10 @@ export default class MonitorValidators extends MonitorBase {
 						signer
 					)}`,
 					60 * 10,
-					`${this.addresses.alias(validator)} is failing to propose blocks`
+					`${this.addresses.alias(validator)} is failing to propose blocks as often as expected`
 				);
 			}
-		}  */
+		}  
 		
 		// Page if we've missed all blocks
 		if (expectedBlockCount > 0 && proposedBlockCount == 0) {
