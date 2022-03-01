@@ -42,7 +42,7 @@ export default class MonitorGovernance extends MonitorBase {
 				`Proposal \`${id}\` is in stage: \`${stage}\`. ` +
 				`${this.getReferendumString(referendum)} ` +
 				`${this.getExecutionString(execution)} ` +
-				`[<${url}|Info>]`;
+				`${url}`;
 
 			await this.alert.discord(
 				msg,
