@@ -43,6 +43,7 @@ export default class MonitorGovernance extends MonitorBase {
 		const metadata = await governance.getProposalMetadata(id);
 		const milestones = await governance.proposalSchedule(id);
 		const stage = (await governance.getProposalStage(id)).toLowerCase();
+		const record = await governance.getProposalRecord(id);
 
 		const url = metadata.descriptionURL;
 
@@ -52,17 +53,26 @@ export default class MonitorGovernance extends MonitorBase {
 			stage.includes("referendum")
 		) {
 			// Queued -> Approval -> Referendum
+			console.debug(`Proposal ${id} is in referendum stage`);
 			const now = new Date().getTime();
-			const referendum = new Date(
-				now + (milestones.Referendum?.toNumber() || 0) * 1000	// suspect the bug is here.  why add referendum to now?
-			);
+			//const referendum = new Date(now + (milestones.Referendum?.toNumber() || 0) * 1000);	// suspect the bug is here.  why add referendum to now?
+			const referendum = new Date( milestones.Referendum.toNumber() * 1000);
+			
 			// debugging the broken dates w/ these console.logs
-			console.log(referendum);
-			const execution = new Date(
-				now + (milestones.Execution?.toNumber() || 0) * 1000   // suspect the bug is here.  why add referendum to now?
-			);
+			console.debug(`time now : ${now}`);
+			console.debug(`proposal referendum time : ${referendum}`);
+			// print proposal referendum time in local time zone
+			console.debug(`proposal referendum time (local TZ): ${getLocalTimeString(referendum, "MMM Do YYYY, HH:mm zz")}`);
+			//console.debug(`proposal referendum time (local TZ): ${getLocalTimeString(referendum, "dddd mmmm dS, yyyy, hh:mm zz")}`);
+
+			const execution = new Date( milestones.Execution.toNumber()  * 1000);
 			// debugging the broken dates w/ these console.logs
-			console.log(execution);
+			console.debug(`proposal execution time : ${execution}`);
+			// print proposal execution time in local time zone
+			console.debug(`proposal execution time (local TZ): ${getLocalTimeString(execution, "MMM Do YYYY, HH:mm zz")}`);
+
+			// pull needed info out of the proposal record
+			console.debug(`proposal ${id} record : ${record}`);
 
 			const msg =
 				`Proposal \`${id}\` is in stage: \`${stage}\`. ` +
@@ -89,17 +99,17 @@ export default class MonitorGovernance extends MonitorBase {
 		if (this.isInPast(referendum)) {
 			return `Upvoting ends and voting begins on \`${getLocalTimeString(
 				referendum,
-				"dddd M/D, h:mma zz"
+				"MMM Do YYYY, HH:mm zz"
 			)}\``;
 		}
-		return "Voting has begun.";
+		return "Voting has begun. ";
 	}
 
 	getExecutionString(execution: Date): string {
 		if (this.isInPast(execution)) {
-			return `Execution can occur after \`${getLocalTimeString(
+			return `Voting will end on \`${getLocalTimeString(
 				execution,
-				"dddd M/D, h:mma zz"
+				"MMM Do YYYY, HH:mm zz"
 			)}\``;
 		}
 		return "Execution milestone passed.";
