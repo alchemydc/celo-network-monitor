@@ -1,3 +1,25 @@
+/* ************************************************************************************** 
+see https://docs.celo.org/protocol/governance for information about the governance process
+see https://github.com/celo-org/celo-monorepo/blob/master/packages/protocol/contracts/governance/Governance.sol for the contract code
+see https://github.com/celo-org/celocli/blob/main/src/commands/governance/show.ts
+
+Phase 1: "queued"
+Period: 24 hours
+Description: Proposals may be submitted by anybody, and have 24 hours to be upvoted. Top 3 move on to the approval phase.
+Without upvotes, proposals are automatically dequeued after 4 weeks (expired)
+
+Phase 2: "approval"
+Period: 24 hours
+Description: Upvoted (>=1) proposals must then be manually approved by the approvers, which is a centralized group of 10 people.
+If approved, the proposal moves on to the referendum phase.
+
+Phase 3: "referendum"
+Period: 5 days
+Description: Approved proposals are then voted on by the community (specifically, holders of locked CELO).
+If the vote passes, the proposal moves on to the execution phase.
+**************************************************************************************** */
+
+
 import MonitorBase from "./monitorBase";
 import { GovernanceWrapper } from "@celo/contractkit/lib/wrappers/Governance";
 import BigNumber from "bignumber.js";
@@ -32,11 +54,15 @@ export default class MonitorGovernance extends MonitorBase {
 			// Queued -> Approval -> Referendum
 			const now = new Date().getTime();
 			const referendum = new Date(
-				now + (milestones.Referendum?.toNumber() || 0) * 1000
+				now + (milestones.Referendum?.toNumber() || 0) * 1000	// suspect the bug is here.  why add referendum to now?
 			);
+			// debugging the broken dates w/ these console.logs
+			console.log(referendum);
 			const execution = new Date(
-				now + (milestones.Execution?.toNumber() || 0) * 1000
+				now + (milestones.Execution?.toNumber() || 0) * 1000   // suspect the bug is here.  why add referendum to now?
 			);
+			// debugging the broken dates w/ these console.logs
+			console.log(execution);
 
 			const msg =
 				`Proposal \`${id}\` is in stage: \`${stage}\`. ` +

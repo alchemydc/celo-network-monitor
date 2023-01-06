@@ -25,6 +25,6 @@ export function weiToIntegerFloorCommas(num: BigNumber | undefined): string {
 }
 
 export function getLocalTimeString(date: Date, format: string): string {
-	const timezone = "America/Los_Angeles";
+	const timezone = "America/Denver";
 	return moment(date).tz(timezone).format(format);
 }
