@@ -80,13 +80,27 @@ export default class MonitorGovernance extends MonitorBase {
 				`${this.getExecutionString(execution)} ` +
 				`${url}`;
 
+			console.debug(`Discord alert key: ${stage}-${this.isInPast(referendum)}-${this.isInPast(execution)}-proposal-${id}`)
 			await this.alert.discord(
 				msg,
 				24 * 60 * 60,
-				`${stage}-${this.isInPast(referendum)}-${this.isInPast(
-					execution
-				)}-proposal-${id}`
+				`${stage}-${this.isInPast(referendum)}-${this.isInPast(execution)}-proposal-${id}`
 			);
+
+			if ( stage.includes("referendum") ) {
+				// check progress of proposal towards passing
+				const support = await governance.getSupport(id);
+				let votesFor = this.cleanupVotes(support.total.toNumber());
+				let votesRequired = this.cleanupVotes(support.required.toNumber());
+				let percentageOfRequired = Math.round((votesFor / votesRequired) * 100);
+				const msg2 = `Proposal ${id} has ${percentageOfRequired}% of the required votes to pass (${votesFor} of ${votesRequired}).`;
+				console.debug(`Discord alert key: ${stage}-${this.isInPast(referendum)}-${this.isInPast(execution)}-proposal-${id}-votes`)
+				await this.alert.discord(
+					msg2,
+					24 * 60 * 60,
+					`${stage}-${this.isInPast(referendum)}-${this.isInPast(execution)}-proposal-${id}-votes`
+				);
+			}
 		}
 	}
 
@@ -114,4 +128,15 @@ export default class MonitorGovernance extends MonitorBase {
 		}
 		return "Execution milestone passed.";
 	}
+
+	cleanupVotes(votes: number): number {
+		if(votes != 0) {
+			if( isNaN(votes)) {
+				votes = 0;
+			}
+			return Math.trunc(votes / 1e18);
+	} else {
+		return votes;
+	  }
+	} 
 }
