@@ -1,5 +1,4 @@
-FROM bitnami/node:12 AS builder
-#ENV NODE_ENV="production"
+FROM bitnami/node:14 AS builder
 
 RUN install_packages libudev-dev libusb-1.0-0-dev build-essential python3 make g++ gcc
 
@@ -12,7 +11,7 @@ RUN yarn
 ADD . /opt/monitor/
 RUN yarn build && rm -rf node_modules && yarn install --production
 
-FROM bitnami/node:12-prod
+FROM bitnami/node:14-prod
 ENV NODE_ENV="production"
 
 WORKDIR /opt/monitor
