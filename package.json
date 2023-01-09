@@ -1,7 +1,7 @@
 {
   "name": "celo-network-monitor",
   "description": "Tool for monitoring Celo validators and alerting to Discord",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "license": "MIT",
   "scripts": {
     "build": "npx tsc -p .",
