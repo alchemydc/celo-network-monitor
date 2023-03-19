@@ -27,7 +27,7 @@
     "dotenv": "16.0.3",
     "js-yaml": "4.1.0",
     "moment": "2.29.4",
-    "moment-timezone": "0.5.40",
+    "moment-timezone": "0.5.41",
     "yarn": "1.22.19",
     "web-request": "1.0.7",
     "web3": "1.3.6"
