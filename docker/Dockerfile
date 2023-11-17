@@ -11,7 +11,8 @@ RUN yarn
 ADD . /opt/monitor/
 RUN yarn build && rm -rf node_modules && yarn install --production
 
-FROM bitnami/node:18-prod
+#FROM bitnami/node:18-prod
+FROM bitnami/node:18
 ENV NODE_ENV="production"
 
 WORKDIR /opt/monitor
