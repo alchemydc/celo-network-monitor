@@ -48,8 +48,8 @@ export default class MonitorGovernance extends MonitorBase {
 		const url = metadata.descriptionURL;
 
 		if (
-			stage.includes("queued") ||
-			stage.includes("approval") ||
+			//stage.includes("queued") ||
+			//stage.includes("approval") ||
 			stage.includes("referendum")
 		) {
 			// Queued -> Approval -> Referendum

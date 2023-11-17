@@ -2,7 +2,8 @@ import { ElectionResultsCache } from "@celo/celocli/lib/utils/election";
 import { discordAddressDetails, addressExplorerUrl, discordSignerDowntime, discordSignerBlocksProposed } from "./alert";
 import BigNumber from "bignumber.js";
 import MonitorBase from "./monitorBase";
-import { Block } from 'web3-eth/types/index'
+//import { Block } from 'web3-eth/types/index'
+import { Block } from "web3-eth-110/types/index";
 
 const scoreCache = new Map<string, BigNumber>();
 

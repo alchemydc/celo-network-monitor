@@ -1,6 +1,7 @@
 import * as Kit from "@celo/contractkit";
 import { AlertInterface, AlertTest } from "./alert";
-import { BlockTransactionString } from "web3-eth/types/index";
+//import { BlockTransactionString } from "web3-eth/types/index";
+import { BlockTransactionString } from "web3-eth-110/types/index";
 import Metrics from "./metrics";
 import Addresses from "./addresses";
 
