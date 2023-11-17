@@ -18,6 +18,7 @@ services:
   celo-mainnet-monitor:
     depends_on:
       - "celo-full-node"
+    build: ../
     image: alchemydc/celo-network-monitor:latest
     container_name: celo-mainnet-monitor
     env_file:
