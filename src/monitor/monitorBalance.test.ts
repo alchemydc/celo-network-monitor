@@ -1,7 +1,8 @@
 import assert from "assert";
 import sinon from "ts-sinon";
 import BigNumber from "bignumber.js";
-import { BlockTransactionString } from "web3-eth/types/index";
+//import { BlockTransactionString } from "web3-eth/types/index";
+import { BlockTransactionString } from "web3-eth-110/types/index";
 import { NewMonitorArgs } from "./monitorBase";
 import MonitorBalance from "./monitorBalance";
 
@@ -19,9 +20,9 @@ describe("monitorBalance", function () {
 			nonce: "",
 			sha3Uncles: "",
 			logsBloom: "",
-			transactionRoot: "",
+			transactionsRoot: "",
 			stateRoot: "",
-			receiptRoot: "",
+			receiptsRoot: "",
 			miner: "",
 			extraData: "",
 			gasLimit: 0,

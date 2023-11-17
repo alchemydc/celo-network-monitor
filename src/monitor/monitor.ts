@@ -17,7 +17,6 @@ import MonitorBase, { MonitorArgs } from "./monitorBase";
 import MonitorNetworkParticipation from "./monitorNetworkParticipation";
 import MonitorKeyRotation from "./monitorKeyRotation";
 import { nodeIsSynced } from "@celo/celocli/lib/utils/helpers";
-//import MonitorAttestationService from "./monitorAttestationService";
 
 export default class CeloMonitor {
 	#provider: KitProvider;
@@ -59,7 +58,6 @@ export default class CeloMonitor {
 		await new MonitorNode(args).monitor();
 		// Collect all monitors
 		let monitors = [
-			//new MonitorAttestationService(args),
 			new MonitorBalance(args),
 			new MonitorElectabilityThreshold(args),
 			new MonitorGovernance(args),

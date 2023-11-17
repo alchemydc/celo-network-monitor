@@ -2,7 +2,8 @@ import assert from "assert";
 import sinon from "ts-sinon";
 import BigNumber from "bignumber.js";
 import MonitorValidators, {BlockSignatureCount} from "./monitorValidators";
-import { BlockTransactionString } from "web3-eth/types/index";
+//import { BlockTransactionString } from "web3-eth/types/index";
+import { BlockTransactionString } from "web3-eth-110/types/index";
 import { NewMonitorArgs } from "./monitorBase";
 import dotenv from "dotenv";
 
@@ -42,9 +43,9 @@ describe("monitorValidators", function () {
 			nonce: "1",
 			sha3Uncles: "",
 			logsBloom: "",
-			transactionRoot: "",
+			transactionsRoot: "",
 			stateRoot: "",
-			receiptRoot: "",
+			receiptsRoot: "",
 			miner: "",
 			extraData: "",
 			gasLimit: 1,
@@ -63,9 +64,9 @@ describe("monitorValidators", function () {
 			nonce: "1",
 			sha3Uncles: "",
 			logsBloom: "",
-			transactionRoot: "",
+			transactionsRoot: "",
 			stateRoot: "",
-			receiptRoot: "",
+			receiptsRoot: "",
 			miner: "",
 			extraData: "",
 			gasLimit: 1,
