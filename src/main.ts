@@ -30,5 +30,6 @@ async function main(): Promise<void> {
 main().catch((err) => {
 	console.error(err.stack);
 	console.error(err);
-	process.exit(1);
+	console.log("Caught error: " + err);
+	//process.exit(1);
 });
